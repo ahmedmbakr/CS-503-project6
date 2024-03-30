@@ -1,90 +1,208 @@
 Object subclass: Main[
-|fileName args action fileReadSuccess|
+    |fileName args action employeesList fileReadSuccess|
 
-parseArgs [
-    "Read the file name from as a commandline argument"
-    args := Smalltalk arguments.
+    parseArgs [
+        "Read the file name from as a commandline argument"
+        args := Smalltalk arguments.
 
-    "Check if the number of arguments is correct"
-    (args size < 2) ifTrue: [
-        ('Usage: gst employee.st salaried.st hourly.st commission.st -f main.st <filename> <action>') displayNl.
-        ('       or gst employee.st salaried.st hourly.st commission.st -f main.st <filename> <action> <operator> <threshold>') displayNl.
-        ^false.
-    ].
-    fileName := args at: 1.
-    action := args at: 2.
-    ^true
-]
-
-readFile [
-    |line fileExists employeesList f|
-    fileExists := File exists: fileName.
-    fileExists 
-        ifFalse: [
-            ('Unable to open ', fileName, ' for reading') displayNl.
+        "Check if the number of arguments is correct"
+        (args size < 2) ifTrue: [
+            ('Usage: gst employee.st salaried.st hourly.st commission.st -f main.st datafile action') displayNl.
+            'or' displayNl.
+            ('Usage: gst employee.st salaried.st hourly.st commission.st -f main.st datafile action operator threshold') displayNl.
+            '' displayNl.
+            'Valid actions: count print min max total avg' displayNl.
+            'Valid operators: eq ne gt ge lt le' displayNl.
             ^false.
         ].
-    
-    f:=FileStream open: fileName mode: #read.
-    "If file does not exist, then exit"
-    line := f nextLine.
-    employeesList := OrderedCollection new.
-    [f atEnd] whileFalse:
-        [
-            |tokens type newEmployee|
-            tokens := line subStrings.
-            type := tokens at: 1.
-            " tokens displayNl. "
-            type = 'hourly' ifTrue: [
-                newEmployee := HourlyEmployee new.
-                newEmployee setFirstName: (tokens at: 2).
-                newEmployee setLastName: (tokens at: 3).
-                newEmployee setNumHours: (tokens at: 4) asInteger.
-                newEmployee setHourlyRate: (tokens at: 5) asNumber asFloat.
-                newEmployee printInfo.
-                " newEmployee getEarning printNl. "
-                " tokens displayNl. "
+        fileName := args at: 1.
+        action := args at: 2.
+        ^true
+    ]
+
+    readFile [
+        |line fileExists f|
+        fileReadSuccess := false.
+        fileExists := File exists: fileName.
+        fileExists 
+            ifFalse: [
+                ('Unable to open ', fileName, ' for reading') displayNl.
+                ^false.
             ].
-            type = 'salaried' ifTrue: [
-                newEmployee := SalariedEmployee new.
-                newEmployee setFirstName: (tokens at: 2).
-                newEmployee setLastName: (tokens at: 3).
-                newEmployee setWeeklySalary: (tokens at: 4) asNumber asFloat.
-                newEmployee printInfo.
-                " newEmployee getEarning printNl. "
+        
+        f:=FileStream open: fileName mode: #read.
+        "If file does not exist, then exit"
+        employeesList := OrderedCollection new.
+        [f atEnd] whileFalse:
+            [
+                |tokens type newEmployee|
+                line := f nextLine.
+                tokens := line subStrings.
+                type := tokens at: 1.
                 " tokens displayNl. "
+                type = 'hourly' ifTrue: [
+                    newEmployee := HourlyEmployee new.
+                    newEmployee setFirstName: (tokens at: 2).
+                    newEmployee setLastName: (tokens at: 3).
+                    newEmployee setNumHours: (tokens at: 4) asInteger.
+                    newEmployee setHourlyRate: (tokens at: 5) asNumber asFloat.
+                    newEmployee printInfo.
+                    " newEmployee getEarning printNl. "
+                    " tokens displayNl. "
+                ].
+                type = 'salaried' ifTrue: [
+                    newEmployee := SalariedEmployee new.
+                    newEmployee setFirstName: (tokens at: 2).
+                    newEmployee setLastName: (tokens at: 3).
+                    newEmployee setWeeklySalary: (tokens at: 4) asNumber asFloat.
+                    newEmployee printInfo.
+                    " newEmployee getEarning printNl. "
+                    " tokens displayNl. "
+                ].
+                type = 'commission' ifTrue: [
+                    newEmployee := CommissionEmployee new.
+                    newEmployee setFirstName: (tokens at: 2).
+                    newEmployee setLastName: (tokens at: 3).
+                    newEmployee setMinWeekPay: (tokens at: 4) asInteger.
+                    newEmployee setSalesAmount: (tokens at: 5) asInteger.
+                    newEmployee setCommissionRate: (tokens at: 6) asNumber asFloat.
+                    newEmployee printInfo.
+                    " newEmployee getEarning printNl. "
+                    " tokens displayNl. "
+                ].
+                employeesList add: newEmployee. 
             ].
-            type = 'commission' ifTrue: [
-                newEmployee := CommissionEmployee new.
-                newEmployee setFirstName: (tokens at: 2).
-                newEmployee setLastName: (tokens at: 3).
-                newEmployee setMinWeekPay: (tokens at: 4) asInteger.
-                newEmployee setSalesAmount: (tokens at: 5) asInteger.
-                newEmployee setCommissionRate: (tokens at: 6) asNumber asFloat.
-                newEmployee printInfo.
-                " newEmployee getEarning printNl. "
-                " tokens displayNl. "
+        action := args at: 2.
+        " ('action is: ', action) displayNl. "
+        " action = 'print' ifTrue: [
+            employeesList do: [:each | each printInfo. each getEarning printNl].
+        ]. "
+        fileReadSuccess := true.
+        ^employeesList.
+    ]
+
+    isFileReadSuccess [
+        ^fileReadSuccess
+    ]
+
+    printFunc [
+        |threshold operation|
+        operation := args at: 3.
+        operation = 'eq' ifTrue: [
+            threshold := (args at: 4) asNumber asFloat.
+            employeesList do: [:each | 
+                (each getEarning) = threshold 
+                    ifTrue: [
+                        each printInfo.
+                        ('earned $', (each getEarning) printString) displayNl.
+                        '' displayNl.
+                    ].
             ].
-            employeesList add: newEmployee. 
-            line := f nextLine.
         ].
-    action := args at: 2.
-    " action = 'print' ifTrue: [
-        employeesList do: [:each | each printInfo. each getEarning printNl].
-    ]. "
-    fileReadSuccess := true.
-    ^employeesList.
-]
+
+        operation = 'ne' ifTrue: [
+            threshold := (args at: 4) asNumber asFloat.
+            employeesList do: [:each | 
+                (each getEarning) ~= threshold 
+                    ifTrue: [
+                        each printInfo.
+                        ('earned $', (each getEarning) printString) displayNl.
+                        '' displayNl.
+                    ].
+            ].
+        ].
+
+        operation = 'ge' ifTrue: [
+            threshold := (args at: 4) asNumber asFloat.
+            employeesList do: [:each | 
+                (each getEarning) >= threshold 
+                    ifTrue: [
+                        each printInfo.
+                        ('earned $', (each getEarning) printString) displayNl.
+                        '' displayNl.
+                    ].
+            ].
+        ].
+
+        operation = 'lt' ifTrue: [
+            threshold := (args at: 4) asNumber asFloat.
+            employeesList do: [:each | 
+                (each getEarning) < threshold 
+                    ifTrue: [
+                        each printInfo.
+                        ('earned $', (each getEarning) printString) displayNl.
+                        '' displayNl.
+                    ].
+            ].
+        ].
+    ]
+
+    parseActions [
+        action = 'count' ifTrue: [
+            ('There are ', (employeesList size) printString, ' employees') displayNl.
+        ].
+        action = 'min' ifTrue: [
+            |min minEmployee|
+
+            min := (employeesList at: 1) getEarning.
+            minEmployee := employeesList at: 1.
+
+            employeesList do: [:each | 
+                ((each getEarning) < min) 
+                    ifTrue: [
+                        min := each getEarning.
+                        minEmployee := each.
+                    ].
+            ].
+            minEmployee printInfo.
+            ('earned $', (minEmployee getEarning) printString) displayNl.
+        ].
+        action = 'max' ifTrue: [
+            |max maxEmployee|
+
+            max := (employeesList at: 1) getEarning.
+            maxEmployee := employeesList at: 1.
+
+            employeesList do: [:each | 
+                ((each getEarning) > max) 
+                    ifTrue: [
+                        max := each getEarning.
+                        maxEmployee := each.
+                    ].
+            ].
+            maxEmployee printInfo.
+            ('earned $', (maxEmployee getEarning) printString) displayNl.
+        ].
+        action = 'total' ifTrue: [
+            |total|
+            total := 0.
+            employeesList do: [:each | total := total + each getEarning].
+            ('Total payment is $', (total * 1.0) printString) displayNl.
+        ].
+        action = 'avg' ifTrue: [
+            |total|
+            total := 0.
+            employeesList do: [:each | total := total + each getEarning].
+            ('Average payment per employee is $', (total / (employeesList size)) printString) displayNl.
+        ].
+        action = 'print' ifTrue: [
+            self printFunc.
+        ].
+    ]
+
+    Main class >> main [
+        |m|
+        m := Main new.
+        m parseArgs ifTrue: [
+            |employeesList|
+            employeesList:= m readFile.
+            (m isFileReadSuccess) ifTrue: [
+                " 'file read successfully' displayNl. "
+                m parseActions.
+            ]. 
+        ].
+    ]
 
 ]
 
-|m|
-m := Main new.
-m parseArgs ifTrue: [
-    |employeesList|
-    employeesList:= m readFile.
-    " fileReadSuccess ifTrue: [
-        m employeesList do: [:each | each printInfo. each getEarning printNl]. 
-        'file read successfully' displayNl.
-    ]. "
-].
+Main main.
