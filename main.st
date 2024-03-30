@@ -1,12 +1,12 @@
 Object subclass: Main[
-    |fileName args action employeesList fileReadSuccess|
+    |fileName args action employeesList fileReadSuccess operation threshold|
 
     parseArgs [
         "Read the file name from as a commandline argument"
         args := Smalltalk arguments.
 
         "Check if the number of arguments is correct"
-        (args size < 2) ifTrue: [
+        (args size < 2 or: [args size > 4]) ifTrue: [
             ('Usage: gst employee.st salaried.st hourly.st commission.st -f main.st datafile action') displayNl.
             'or' displayNl.
             ('Usage: gst employee.st salaried.st hourly.st commission.st -f main.st datafile action operator threshold') displayNl.
@@ -46,7 +46,7 @@ Object subclass: Main[
                     newEmployee setLastName: (tokens at: 3).
                     newEmployee setNumHours: (tokens at: 4) asInteger.
                     newEmployee setHourlyRate: (tokens at: 5) asNumber asFloat.
-                    newEmployee printInfo.
+                    " newEmployee printInfo. "
                     " newEmployee getEarning printNl. "
                     " tokens displayNl. "
                 ].
@@ -55,7 +55,7 @@ Object subclass: Main[
                     newEmployee setFirstName: (tokens at: 2).
                     newEmployee setLastName: (tokens at: 3).
                     newEmployee setWeeklySalary: (tokens at: 4) asNumber asFloat.
-                    newEmployee printInfo.
+                    " newEmployee printInfo. "
                     " newEmployee getEarning printNl. "
                     " tokens displayNl. "
                 ].
@@ -66,13 +66,17 @@ Object subclass: Main[
                     newEmployee setMinWeekPay: (tokens at: 4) asInteger.
                     newEmployee setSalesAmount: (tokens at: 5) asInteger.
                     newEmployee setCommissionRate: (tokens at: 6) asNumber asFloat.
-                    newEmployee printInfo.
+                    " newEmployee printInfo. "
                     " newEmployee getEarning printNl. "
                     " tokens displayNl. "
                 ].
                 employeesList add: newEmployee. 
             ].
         action := args at: 2.
+        args size = 4 ifTrue: [
+            operation := args at: 3.
+            threshold := (args at: 4) asNumber asFloat.
+        ].
         " ('action is: ', action) displayNl. "
         " action = 'print' ifTrue: [
             employeesList do: [:each | each printInfo. each getEarning printNl].
@@ -137,7 +141,37 @@ Object subclass: Main[
         ].
     ]
 
+    performThresOperation: lhs right: rhs  [
+        operation = 'eq' ifTrue: [
+            ^lhs = rhs.
+        ].
+        operation = 'ne' ifTrue: [
+            ^lhs ~= rhs.
+        ].
+        operation = 'gt' ifTrue: [
+            ^lhs > rhs.
+        ].
+        operation = 'ge' ifTrue: [
+            ^lhs >= rhs.
+        ].
+        operation = 'lt' ifTrue: [
+            ^lhs < rhs.
+        ].
+        operation = 'le' ifTrue: [
+            ^lhs <= rhs.
+        ].
+    ]
+
+    updateEmployeesListBasedOnCond [
+        employeesList := employeesList select: [:each | self performThresOperation: (each getEarning) right: threshold].
+        " employeesList := employeesList select: [:each | 3< (each getEarning)]. "
+    ]
+
+
     parseActions [
+        args size = 4 ifTrue: [
+            self updateEmployeesListBasedOnCond.
+        ].
         action = 'count' ifTrue: [
             ('There are ', (employeesList size) printString, ' employees') displayNl.
         ].

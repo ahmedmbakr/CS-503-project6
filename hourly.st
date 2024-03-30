@@ -14,7 +14,7 @@ Employee subclass: HourlyEmployee [
     printInfo [
         "An instance method to get the information of the employee"
         ('Hourly employee: ', super printInfo) displayNl.
-        ('hours worked: ', (numHours * 1.0) printString, ' , hourly rate: ', hoursRate printString) displayNl.
+        ('hours worked: ', (numHours * 1.0) printString, ', hourly rate: ', hoursRate printString) displayNl.
     ]
 
     getEarning [
