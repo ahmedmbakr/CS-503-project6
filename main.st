@@ -90,55 +90,7 @@ Object subclass: Main[
     ]
 
     printFunc [
-        |threshold operation|
-        operation := args at: 3.
-        operation = 'eq' ifTrue: [
-            threshold := (args at: 4) asNumber asFloat.
-            employeesList do: [:each | 
-                (each getEarning) = threshold 
-                    ifTrue: [
-                        each printInfo.
-                        ('earned $', (each getEarning) printString) displayNl.
-                        '' displayNl.
-                    ].
-            ].
-        ].
-
-        operation = 'ne' ifTrue: [
-            threshold := (args at: 4) asNumber asFloat.
-            employeesList do: [:each | 
-                (each getEarning) ~= threshold 
-                    ifTrue: [
-                        each printInfo.
-                        ('earned $', (each getEarning) printString) displayNl.
-                        '' displayNl.
-                    ].
-            ].
-        ].
-
-        operation = 'ge' ifTrue: [
-            threshold := (args at: 4) asNumber asFloat.
-            employeesList do: [:each | 
-                (each getEarning) >= threshold 
-                    ifTrue: [
-                        each printInfo.
-                        ('earned $', (each getEarning) printString) displayNl.
-                        '' displayNl.
-                    ].
-            ].
-        ].
-
-        operation = 'lt' ifTrue: [
-            threshold := (args at: 4) asNumber asFloat.
-            employeesList do: [:each | 
-                (each getEarning) < threshold 
-                    ifTrue: [
-                        each printInfo.
-                        ('earned $', (each getEarning) printString) displayNl.
-                        '' displayNl.
-                    ].
-            ].
-        ].
+        employeesList do: [:each | each printInfo. ('earned $', (each getEarning) printString) displayNl. '' displayNl.].
     ]
 
     performThresOperation: lhs right: rhs  [
