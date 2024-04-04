@@ -38,39 +38,41 @@ Object subclass: Main[
                 |tokens type newEmployee|
                 line := f nextLine.
                 tokens := line subStrings.
+                tokens size > 0 ifTrue: [
                 type := tokens at: 1.
                 " tokens displayNl. "
-                type = 'hourly' ifTrue: [
-                    newEmployee := HourlyEmployee new.
-                    newEmployee setFirstName: (tokens at: 2).
-                    newEmployee setLastName: (tokens at: 3).
-                    newEmployee setNumHours: (tokens at: 4) asInteger.
-                    newEmployee setHourlyRate: (tokens at: 5) asNumber asFloat.
-                    " newEmployee printInfo. "
-                    " newEmployee getEarning printNl. "
-                    " tokens displayNl. "
+                    type = 'hourly' ifTrue: [
+                        newEmployee := HourlyEmployee new.
+                        newEmployee setFirstName: (tokens at: 2).
+                        newEmployee setLastName: (tokens at: 3).
+                        newEmployee setNumHours: (tokens at: 4) asInteger.
+                        newEmployee setHourlyRate: (tokens at: 5) asNumber asFloat.
+                        " newEmployee printInfo. "
+                        " newEmployee getEarning printNl. "
+                        " tokens displayNl. "
+                    ].
+                    type = 'salaried' ifTrue: [
+                        newEmployee := SalariedEmployee new.
+                        newEmployee setFirstName: (tokens at: 2).
+                        newEmployee setLastName: (tokens at: 3).
+                        newEmployee setWeeklySalary: (tokens at: 4) asNumber asFloat.
+                        " newEmployee printInfo. "
+                        " newEmployee getEarning printNl. "
+                        " tokens displayNl. "
+                    ].
+                    type = 'commission' ifTrue: [
+                        newEmployee := CommissionEmployee new.
+                        newEmployee setFirstName: (tokens at: 2).
+                        newEmployee setLastName: (tokens at: 3).
+                        newEmployee setMinWeekPay: (tokens at: 4) asInteger.
+                        newEmployee setSalesAmount: (tokens at: 5) asInteger.
+                        newEmployee setCommissionRate: (tokens at: 6) asNumber asFloat.
+                        " newEmployee printInfo. "
+                        " newEmployee getEarning printNl. "
+                        " tokens displayNl. "
+                    ].
+                    employeesList add: newEmployee. 
                 ].
-                type = 'salaried' ifTrue: [
-                    newEmployee := SalariedEmployee new.
-                    newEmployee setFirstName: (tokens at: 2).
-                    newEmployee setLastName: (tokens at: 3).
-                    newEmployee setWeeklySalary: (tokens at: 4) asNumber asFloat.
-                    " newEmployee printInfo. "
-                    " newEmployee getEarning printNl. "
-                    " tokens displayNl. "
-                ].
-                type = 'commission' ifTrue: [
-                    newEmployee := CommissionEmployee new.
-                    newEmployee setFirstName: (tokens at: 2).
-                    newEmployee setLastName: (tokens at: 3).
-                    newEmployee setMinWeekPay: (tokens at: 4) asInteger.
-                    newEmployee setSalesAmount: (tokens at: 5) asInteger.
-                    newEmployee setCommissionRate: (tokens at: 6) asNumber asFloat.
-                    " newEmployee printInfo. "
-                    " newEmployee getEarning printNl. "
-                    " tokens displayNl. "
-                ].
-                employeesList add: newEmployee. 
             ].
         action := args at: 2.
         args size = 4 ifTrue: [
