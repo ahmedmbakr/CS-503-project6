@@ -131,25 +131,23 @@ Object subclass: Main[
         ].
         action = 'min' ifTrue: [
             |min minEmployee|
-
+            
             min := (employeesList at: 1) getEarning.
-            minEmployee := employeesList at: 1.
-
             employeesList do: [:each | 
                 ((each getEarning) < min) 
                     ifTrue: [
                         min := each getEarning.
-                        minEmployee := each.
                     ].
             ].
-            minEmployee printInfo.
-            ('earned $', (minEmployee getEarning) printString) displayNl.
+            operation := 'eq'.
+            threshold := min.
+            self updateEmployeesListBasedOnCond.
+            self printFunc.
         ].
         action = 'max' ifTrue: [
             |max maxEmployee|
 
             max := (employeesList at: 1) getEarning.
-            maxEmployee := employeesList at: 1.
 
             employeesList do: [:each | 
                 ((each getEarning) > max) 
@@ -158,8 +156,10 @@ Object subclass: Main[
                         maxEmployee := each.
                     ].
             ].
-            maxEmployee printInfo.
-            ('earned $', (maxEmployee getEarning) printString) displayNl.
+            operation := 'eq'.
+            threshold := max.
+            self updateEmployeesListBasedOnCond.
+            self printFunc.
         ].
         action = 'total' ifTrue: [
             |total|
